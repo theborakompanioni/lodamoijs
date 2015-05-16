@@ -11,13 +11,13 @@
   function evalScript(stringJavascriptSource, onLoad) {
     var script = document.createElement('script');
     var sourceAsTextNode = document.createTextNode(stringJavascriptSource);
-    var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
 
     script.type = 'text/javascript';
     script.appendChild(sourceAsTextNode);
 
-    var removeFromHead = appendTagToHead(script);
+    var removeFromHead = appendTagToDom(script);
 
+    var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
     window.setTimeout(function() {
       onLoadOrNoop();
       removeFromHead();
@@ -30,14 +30,13 @@
     script.src = scriptSrc;
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
-    var removeFromHead = appendTagToHead(script, function (e) {
+    var removeFromHead = appendTagToDom(script, function (e) {
       onLoadOrNoop(e);
-      // Be nice and clean: immediately remove the script after evaluation!
       removeFromHead();
     });
   }
 
-  function appendTagToHead(tag, onLoad) {
+  function appendTagToDom(tag, onLoad) {
     if (isElement(tag)) {
       var head = document.getElementsByTagName('head')[0] || document.documentElement;
 
@@ -60,16 +59,17 @@
         }
       }
 
-      head.appendChild(tag);
-      //head.insertBefore(script, head.firstChild);
+      // Use insertBefore instead of appendChild to circumvent an IE6 bug.
+      if(head.firstChild) {
+        head.insertBefore(tag, head.firstChild);
+      } else {
+        head.appendChild(tag);
+      }
 
       return function() {
-        // Be nice and clean: immediately remove the script after evaluation!
         head.removeChild(tag);
       };
     }
-
-    return NOOP;
   }
 
   function isFunction(value) {
@@ -178,24 +178,28 @@
 
       for (var i = 0; i < scriptsLength; i++) {
         var sourceOrUrlOrScriptTag = this._scripts[i];
+
         if (isScriptTag(sourceOrUrlOrScriptTag)) {
           var scriptTag = sourceOrUrlOrScriptTag;
           loadOrEvalScriptTag(scriptTag, onLoad);
-        } else if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
+        }
+        else if (isElement(sourceOrUrlOrScriptTag)) {
+          var elementTag = sourceOrUrlOrScriptTag;
+          return new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
+        }
+        else if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
           var url = sourceOrUrlOrScriptTag;
           loadScript(url, onLoad);
-        } else if (isString(sourceOrUrlOrScriptTag)) {
+        }
+        else if (isString(sourceOrUrlOrScriptTag)) {
           var source = sourceOrUrlOrScriptTag;
           evalScript(source, onLoad);
-        } else {
+        }
+        else {
           onLoad();
         }
       }
     }
-  };
-
-  Lodamoi.fromElement = function (element) {
-    return new Lodamoi(getAnyNestedScriptTagsOfElement(element));
   };
 
   return Lodamoi;

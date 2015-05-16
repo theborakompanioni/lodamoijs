@@ -5,9 +5,9 @@
 }(this, function(document) {
     "use strict";
     function evalScript(stringJavascriptSource, onLoad) {
-        var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+        var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource);
         script.type = "text/javascript", script.appendChild(sourceAsTextNode);
-        var removeFromHead = appendTagToHead(script);
+        var removeFromHead = appendTagToDom(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
         window.setTimeout(function() {
             onLoadOrNoop(), removeFromHead();
         }, 1);
@@ -15,11 +15,11 @@
     function loadScript(scriptSrc, onLoad) {
         var script = document.createElement("script");
         script.type = "text/javascript", script.src = scriptSrc;
-        var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeFromHead = appendTagToHead(script, function(e) {
+        var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeFromHead = appendTagToDom(script, function(e) {
             onLoadOrNoop(e), removeFromHead();
         });
     }
-    function appendTagToHead(tag, onLoad) {
+    function appendTagToDom(tag, onLoad) {
         if (isElement(tag)) {
             var head = document.getElementsByTagName("head")[0] || document.documentElement;
             if (isFunction(onLoad)) {
@@ -31,11 +31,11 @@
                     eventListener(e));
                 } : tag.addEventListener ? tag.addEventListener("load", eventListener, !1) : tag.attachEvent && tag.attachEvent("load", eventListener);
             }
-            return head.appendChild(tag), function() {
+            return head.firstChild ? head.insertBefore(tag, head.firstChild) : head.appendChild(tag), 
+            function() {
                 head.removeChild(tag);
             };
         }
-        return NOOP;
     }
     function isFunction(value) {
         return "function" == typeof value;
@@ -97,16 +97,20 @@
                 if (isScriptTag(sourceOrUrlOrScriptTag)) {
                     var scriptTag = sourceOrUrlOrScriptTag;
                     loadOrEvalScriptTag(scriptTag, onLoad);
-                } else if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
-                    var url = sourceOrUrlOrScriptTag;
-                    loadScript(url, onLoad);
-                } else if (isString(sourceOrUrlOrScriptTag)) {
-                    var source = sourceOrUrlOrScriptTag;
-                    evalScript(source, onLoad);
-                } else onLoad();
+                } else {
+                    if (isElement(sourceOrUrlOrScriptTag)) {
+                        var elementTag = sourceOrUrlOrScriptTag;
+                        return new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
+                    }
+                    if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
+                        var url = sourceOrUrlOrScriptTag;
+                        loadScript(url, onLoad);
+                    } else if (isString(sourceOrUrlOrScriptTag)) {
+                        var source = sourceOrUrlOrScriptTag;
+                        evalScript(source, onLoad);
+                    } else onLoad();
+                }
             }
         }
-    }, Lodamoi.fromElement = function(element) {
-        return new Lodamoi(getAnyNestedScriptTagsOfElement(element));
     }, Lodamoi;
 });

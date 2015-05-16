@@ -61,9 +61,11 @@ describe('Lodamoijs', function () {
       '</div>';
 
       var tmpElement = document.createElement('div');
-      tmpElement.innerHTML = nestedHtml;
 
-      var lodamoi = Lodamoi.fromElement(tmpElement);
+      tmpElement.innerHTML = nestedHtml;
+      var lodamoi = new Lodamoi([
+        tmpElement
+      ]);
 
       lodamoi.load(function() {
         expect(window[varName]).toBe(42 + 1);
