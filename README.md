@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/theborakompanioni/lodamoijs.svg?branch=master)](https://travis-ci.org/theborakompanioni/lodamoijs)
+[![Coverage Status](https://img.shields.io/coveralls/theborakompanioni/lodamoijs.svg)](https://coveralls.io/r/theborakompanioni/lodamoijs?branch=master)
+[![Dependency Status](http://img.shields.io/badge/dependencies-Vanilla_JS-brightgreen.svg)](http://vanilla-js.com/)
+[![devDependency Status](https://david-dm.org/theborakompanioni/lodamoijs/dev-status.svg)](https://david-dm.org/theborakompanioni/lodamoijs#info=devDependencies)
 
 lodamoijs
 ========
