@@ -32,7 +32,7 @@ http.get('page.html', function(htmlTags) {
   Lodamoi([
       htmlTags
     ]).load(function() {
-    console.log(a + b); // -> 3
+    // do awesome stuff
   });
 });
 ```
