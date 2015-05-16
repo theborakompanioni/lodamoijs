@@ -50,5 +50,27 @@ describe('Lodamoijs', function () {
         done();
       });
     });
+
+    it('should load a script tags embedded in an dom element', function (done) {
+      var varName = 'foobar' + new Date().getTime();
+      var nestedHtml = '<div>' +
+        '<h1>Lorem ipsum</h1>' +
+        '<script>' +
+          'var '+varName+' = 42; '+varName+' = '+varName+' + 1;' +
+        '</script>' +
+      '</div>';
+
+      var tmpElement = document.createElement('div');
+      tmpElement.innerHTML = nestedHtml;
+
+      var lodamoi = Lodamoi.fromElement(tmpElement);
+
+      lodamoi.load(function() {
+        expect(window[varName]).toBe(42 + 1);
+        done();
+      });
+
+      jasmine.clock().tick(2);
+    });
   });
 });
