@@ -9,7 +9,7 @@ describe('Lodamoijs', function () {
   };
 
   var randomNumber = function() {
-    Math.floor((Math.random() * 10e7) + 1);
+    return Math.floor((Math.random() * 10e7) + 1);
   };
 
   var newRandomVariableName = function(postfix) {

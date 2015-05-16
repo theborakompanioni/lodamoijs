@@ -7,16 +7,16 @@
     function evalScript(stringJavascriptSource, onLoad) {
         var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource);
         script.type = "text/javascript", script.appendChild(sourceAsTextNode);
-        var removeFromHead = addElementToDom(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+        var removeElementFromDom = addElementToDom(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
         window.setTimeout(function() {
-            onLoadOrNoop(), removeFromHead();
+            onLoadOrNoop(), removeElementFromDom();
         }, 1);
     }
     function loadScript(scriptSrc, onLoad) {
         var script = document.createElement("script");
         script.type = "text/javascript", script.src = scriptSrc;
-        var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeFromHead = addElementToDom(script, function(e) {
-            onLoadOrNoop(e), removeFromHead();
+        var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeElementFromDom = addElementToDom(script, function(e) {
+            onLoadOrNoop(e), removeElementFromDom();
         });
     }
     function addElementToDom(tag, onLoad) {
@@ -58,7 +58,7 @@
         return isScriptTag(scriptTag) && isString(scriptTag.src) && scriptTag.src;
     }
     function canEvalScriptTag(scriptTag) {
-        return isScriptTag(scriptTag) && isString(scriptTag.src) && "" !== getElementContent(scriptTag);
+        return isScriptTag(scriptTag) && "" !== getElementContent(scriptTag);
     }
     function getElementContent(elem) {
         return isElement(elem) ? elem.text || elem.textContent || elem.innerHTML || "" : "";
@@ -79,7 +79,8 @@
         return this instanceof Lodamoi ? void (this._scripts = scripts || []) : new Lodamoi(scripts);
     }
     var ELEMENT_NODE_TYPE = 1, NOOP = function() {};
-    return Lodamoi.prototype = {
+    return Lodamoi._addElementToDom = addElementToDom, Lodamoi._evalScript = evalScript, 
+    Lodamoi._loadScript = loadScript, Lodamoi.prototype = {
         load: function(callback) {
             var callbackOrNoop = isFunction(callback) ? callback : NOOP;
             if (0 === this._scripts.length) return void callbackOrNoop();
@@ -89,8 +90,8 @@
                 onLoad: function() {
                     this.loadCount++, this.loadCount === this.totalRequired && callbackOrNoop();
                 }
-            }, onLoad = function() {
-                context.onLoad();
+            }, onLoad = function(e) {
+                context.onLoad(e);
             }, i = 0; scriptsLength > i; i++) {
                 var sourceOrUrlOrScriptTag = this._scripts[i];
                 if (isElement(sourceOrUrlOrScriptTag)) {

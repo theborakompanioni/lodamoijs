@@ -15,12 +15,12 @@
     script.type = 'text/javascript';
     script.appendChild(sourceAsTextNode);
 
-    var removeFromHead = addElementToDom(script);
+    var removeElementFromDom = addElementToDom(script);
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
     window.setTimeout(function() {
       onLoadOrNoop();
-      removeFromHead();
+      removeElementFromDom();
     }, 1);
   }
 
@@ -30,9 +30,9 @@
     script.src = scriptSrc;
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
-    var removeFromHead = addElementToDom(script, function (e) {
+    var removeElementFromDom = addElementToDom(script, function (e) {
       onLoadOrNoop(e);
-      removeFromHead();
+      removeElementFromDom();
     });
   }
 
@@ -111,7 +111,7 @@
   }
 
   function canEvalScriptTag(scriptTag) {
-    return isScriptTag(scriptTag) && isString(scriptTag.src) && getElementContent(scriptTag) !== '';
+    return isScriptTag(scriptTag) && getElementContent(scriptTag) !== '';
   }
 
   function getElementContent(elem) {
@@ -154,6 +154,10 @@
     this._scripts = scripts || [];
   }
 
+  Lodamoi._addElementToDom = addElementToDom;
+  Lodamoi._evalScript = evalScript;
+  Lodamoi._loadScript = loadScript;
+
   Lodamoi.prototype = {
     load: function (callback) {
       var callbackOrNoop = isFunction(callback) ? callback : NOOP;
@@ -174,8 +178,8 @@
         }
       };
 
-      var onLoad = function () {
-        context.onLoad();
+      var onLoad = function (e) {
+        context.onLoad(e);
       };
 
       for (var i = 0; i < scriptsLength; i++) {
