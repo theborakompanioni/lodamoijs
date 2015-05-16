@@ -1,7 +1,7 @@
+[![Build Status](https://travis-ci.org/theborakompanioni/lodamoijs.svg?branch=master)](https://travis-ci.org/theborakompanioni/lodamoijs)
+
 lodamoijs
 ========
-
-[![Build Status](https://travis-ci.org/theborakompanioni/lodamoijs.svg?branch=master)](https://travis-ci.org/theborakompanioni/lodamoijs)
 
 License
 -------

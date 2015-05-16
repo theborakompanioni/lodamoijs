@@ -17,8 +17,11 @@
     script.appendChild(sourceAsTextNode);
 
     var removeFromHead = appendTagToHead(script);
-    onLoadOrNoop();
-    removeFromHead();
+
+    window.setTimeout(function() {
+      onLoadOrNoop();
+      removeFromHead();
+    }, 1);
   }
 
   function loadScript(scriptSrc, onLoad) {

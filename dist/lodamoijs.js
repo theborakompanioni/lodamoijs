@@ -8,7 +8,9 @@
         var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
         script.type = "text/javascript", script.appendChild(sourceAsTextNode);
         var removeFromHead = appendTagToHead(script);
-        onLoadOrNoop(), removeFromHead();
+        window.setTimeout(function() {
+            onLoadOrNoop(), removeFromHead();
+        }, 1);
     }
     function loadScript(scriptSrc, onLoad) {
         var script = document.createElement("script");

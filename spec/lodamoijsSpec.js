@@ -27,19 +27,6 @@ describe('Lodamoijs', function () {
   });
 
   describe('loading scripts', function () {
-
-    it('should load a remote script', function (done) {
-      var lodamoi = new Lodamoi([
-        'https://code.jquery.com/jquery-2.1.4.min.js'
-      ]);
-
-      lodamoi.load(function() {
-        expect(window.jQuery).toBeDefined();
-        done();
-      });
-
-    });
-
     it('should execute a script', function (done) {
       var lodamoi = new Lodamoi([
         'var a = 42; a = a + 1;'
@@ -50,6 +37,18 @@ describe('Lodamoijs', function () {
         done();
       });
 
+      jasmine.clock().tick(2);
+    });
+
+    it('should load a remote script', function (done) {
+      var lodamoi = new Lodamoi([
+        'https://code.jquery.com/jquery-2.1.4.min.js'
+      ]);
+
+      lodamoi.load(function() {
+        expect(window.jQuery).toBeDefined();
+        done();
+      });
     });
   });
 });
