@@ -93,22 +93,16 @@
                 context.onLoad();
             }, i = 0; scriptsLength > i; i++) {
                 var sourceOrUrlOrScriptTag = this._scripts[i];
-                if (isScriptTag(sourceOrUrlOrScriptTag)) {
-                    var scriptTag = sourceOrUrlOrScriptTag;
-                    loadOrEvalScriptTag(scriptTag, onLoad);
-                } else {
-                    if (isElement(sourceOrUrlOrScriptTag)) {
-                        var elementTag = sourceOrUrlOrScriptTag;
-                        return new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
-                    }
-                    if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
-                        var url = sourceOrUrlOrScriptTag;
-                        loadScript(url, onLoad);
-                    } else if (isString(sourceOrUrlOrScriptTag)) {
-                        var source = sourceOrUrlOrScriptTag;
-                        evalScript(source, onLoad);
-                    } else onLoad();
-                }
+                if (isElement(sourceOrUrlOrScriptTag)) {
+                    var elementTag = sourceOrUrlOrScriptTag;
+                    isScriptTag(elementTag) ? loadOrEvalScriptTag(elementTag, onLoad) : new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
+                } else if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
+                    var url = sourceOrUrlOrScriptTag;
+                    loadScript(url, onLoad);
+                } else if (isString(sourceOrUrlOrScriptTag)) {
+                    var source = sourceOrUrlOrScriptTag;
+                    evalScript(source, onLoad);
+                } else onLoad();
             }
         }
     }, Lodamoi;

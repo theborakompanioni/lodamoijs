@@ -181,13 +181,13 @@
       for (var i = 0; i < scriptsLength; i++) {
         var sourceOrUrlOrScriptTag = this._scripts[i];
 
-        if (isScriptTag(sourceOrUrlOrScriptTag)) {
-          var scriptTag = sourceOrUrlOrScriptTag;
-          loadOrEvalScriptTag(scriptTag, onLoad);
-        }
-        else if (isElement(sourceOrUrlOrScriptTag)) {
+        if (isElement(sourceOrUrlOrScriptTag)) {
           var elementTag = sourceOrUrlOrScriptTag;
-          return new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
+          if (isScriptTag(elementTag)) {
+            loadOrEvalScriptTag(elementTag, onLoad);
+          } else {
+            new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
+          }
         }
         else if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
           var url = sourceOrUrlOrScriptTag;
