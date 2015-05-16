@@ -1,0 +1,23 @@
+{
+  "name": "lodamoijs",
+  "version": "0.1.0",
+  "main": [
+    "./dist/lodamoijs.min.js"
+  ],
+  "ignore": [
+    "coverage",
+    "spec",
+    "bower_components",
+    "node_modules",
+    "Gruntfile.js",
+    "karma.conf.json",
+    "SpecRunner.html",
+    "package.json",
+    "bower.json",
+    "**/.*"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "jasmine": "2.1.3"
+  }
+}
