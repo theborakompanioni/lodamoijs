@@ -36,6 +36,7 @@
                 head.removeChild(tag);
             };
         }
+        return NOOP;
     }
     function isFunction(value) {
         return "function" == typeof value;

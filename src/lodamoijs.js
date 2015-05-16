@@ -37,39 +37,41 @@
   }
 
   function appendTagToDom(tag, onLoad) {
-    if (isElement(tag)) {
-      var head = document.getElementsByTagName('head')[0] || document.documentElement;
-
-      if(isFunction(onLoad)) {
-        var eventListener = function (e) {
-          onLoad(e);
-        };
-
-        if (tag.readyState) { // IE
-          tag.onreadystatechange = function (e) {
-            if (tag.readyState === 'loaded' || tag.readyState === 'complete') {
-              tag.onreadystatechange = null;
-              eventListener(e);
-            }
-          };
-        } else if (tag.addEventListener) {
-          tag.addEventListener('load', eventListener, false);
-        } else if (tag.attachEvent) {
-          tag.attachEvent('load', eventListener);
-        }
-      }
-
-      // Use insertBefore instead of appendChild to circumvent an IE6 bug.
-      if(head.firstChild) {
-        head.insertBefore(tag, head.firstChild);
-      } else {
-        head.appendChild(tag);
-      }
-
-      return function() {
-        head.removeChild(tag);
-      };
+    if (!isElement(tag)) {
+      return NOOP;
     }
+    
+    var head = document.getElementsByTagName('head')[0] || document.documentElement;
+
+    if(isFunction(onLoad)) {
+      var eventListener = function (e) {
+        onLoad(e);
+      };
+
+      if (tag.readyState) { // IE
+        tag.onreadystatechange = function (e) {
+          if (tag.readyState === 'loaded' || tag.readyState === 'complete') {
+            tag.onreadystatechange = null;
+            eventListener(e);
+          }
+        };
+      } else if (tag.addEventListener) {
+        tag.addEventListener('load', eventListener, false);
+      } else if (tag.attachEvent) {
+        tag.attachEvent('load', eventListener);
+      }
+    }
+
+    // Use insertBefore instead of appendChild to circumvent an IE6 bug.
+    if(head.firstChild) {
+      head.insertBefore(tag, head.firstChild);
+    } else {
+      head.appendChild(tag);
+    }
+
+    return function() {
+      head.removeChild(tag);
+    };
   }
 
   function isFunction(value) {

@@ -2,6 +2,12 @@
 describe('Lodamoijs', function () {
   'use strict';
 
+  var defer  = function(func, timeoutOrNull) {
+    var timeout = timeoutOrNull || 1;
+    setTimeout(func, timeout);
+    jasmine.clock().tick(timeout + 1);
+  };
+
   // TODO: uncomment this if jasmine supports mocking the Date object natively
   //it('should verify that jasmine mocks the Date object', function () {
   //    expect(jasmine.clock().mockDate).toBeDefined();
@@ -34,7 +40,7 @@ describe('Lodamoijs', function () {
 
       lodamoi.load(function() {
         expect(window.a).toBe(42 + 1);
-        done();
+        defer(done);
       });
 
       jasmine.clock().tick(2);
@@ -47,7 +53,7 @@ describe('Lodamoijs', function () {
 
       lodamoi.load(function() {
         expect(window.jQuery).toBeDefined();
-        done();
+        defer(done);
       });
     });
 
@@ -69,7 +75,7 @@ describe('Lodamoijs', function () {
 
       lodamoi.load(function() {
         expect(window[varName]).toBe(42 + 1);
-        done();
+        defer(done);
       });
 
       jasmine.clock().tick(2);

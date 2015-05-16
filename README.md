@@ -3,6 +3,11 @@
 lodamoijs
 ========
 
+
+Further Reading
+------
+- [appendChild vs insertBefore](http://www.stevesouders.com/blog/2010/05/11/appendchild-vs-insertbefore/)
+
 License
 -------
 
