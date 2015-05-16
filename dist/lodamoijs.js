@@ -6,7 +6,7 @@
     "use strict";
     function evalScript(stringJavascriptSource, onLoad) {
         var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource);
-        script.type = "text/javascript", script.appendChild(sourceAsTextNode);
+        script.type = "text/javascript", script.async = !1, script.appendChild(sourceAsTextNode);
         var removeElementFromDom = addElementToDom(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
         window.setTimeout(function() {
             onLoadOrNoop(), removeElementFromDom();
@@ -14,7 +14,7 @@
     }
     function loadScript(scriptSrc, onLoad) {
         var script = document.createElement("script");
-        script.type = "text/javascript", script.src = scriptSrc;
+        script.type = "text/javascript", script.async = !0, script.src = scriptSrc;
         var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeElementFromDom = addElementToDom(script, function(e) {
             onLoadOrNoop(e), removeElementFromDom();
         });

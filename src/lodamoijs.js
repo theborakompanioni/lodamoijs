@@ -13,6 +13,7 @@
     var sourceAsTextNode = document.createTextNode(stringJavascriptSource);
 
     script.type = 'text/javascript';
+    script.async = false;
     script.appendChild(sourceAsTextNode);
 
     var removeElementFromDom = addElementToDom(script);
@@ -27,6 +28,7 @@
   function loadScript(scriptSrc, onLoad) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
+    script.async = true;
     script.src = scriptSrc;
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
