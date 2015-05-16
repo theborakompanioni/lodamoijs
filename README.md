@@ -2,7 +2,7 @@
 
 lodamoijs
 ========
-
+A simple asynchronous JavaScript evaluator.
 
 Further Reading
 ------
