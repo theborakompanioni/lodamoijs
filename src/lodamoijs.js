@@ -15,7 +15,7 @@
     script.type = 'text/javascript';
     script.appendChild(sourceAsTextNode);
 
-    var removeFromHead = appendTagToDom(script);
+    var removeFromHead = addElementToDom(script);
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
     window.setTimeout(function() {
@@ -30,17 +30,17 @@
     script.src = scriptSrc;
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
-    var removeFromHead = appendTagToDom(script, function (e) {
+    var removeFromHead = addElementToDom(script, function (e) {
       onLoadOrNoop(e);
       removeFromHead();
     });
   }
 
-  function appendTagToDom(tag, onLoad) {
+  function addElementToDom(tag, onLoad) {
     if (!isElement(tag)) {
       return NOOP;
     }
-    
+
     var head = document.getElementsByTagName('head')[0] || document.documentElement;
 
     if(isFunction(onLoad)) {
