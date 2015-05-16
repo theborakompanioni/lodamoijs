@@ -6,7 +6,7 @@
     "./dist/lodamoijs.min.js"
   ],
   "description": "A simple asynchronous JavaScript evaluator.",
-  "keywords": ["async", "load", "script", "execute", "eval", "evaluator", "observe"],
+  "keywords": ["async", "load", "script", "execute", "eval", "evaluator"],
   "homepage": "https://github.com/theborakompanioni/lodamoijs",
   "authors": [
     "tbk"
