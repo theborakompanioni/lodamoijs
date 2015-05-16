@@ -69,7 +69,7 @@
     function getAnyNestedScriptTagsOfElement(elem) {
         if (isScriptTag(elem)) return [ elem ];
         var array = [];
-        if (isElement(elem) && elem.childNodes.length > 0) for (var nestedScriptTags = elem.getElementsByTagName("script"), j = nestedScriptTags.length >>> 0; j--; ) {
+        if (isElement(elem) && elem.childNodes.length > 0) for (var nestedScriptTags = elem.getElementsByTagName("script"), j = 0, n = nestedScriptTags.length >>> 0; n > j; j++) {
             var maybeScriptTag = nestedScriptTags[j];
             isScriptTag(maybeScriptTag) && array.push(maybeScriptTag);
         }

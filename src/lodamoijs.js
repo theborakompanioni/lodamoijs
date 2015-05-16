@@ -134,7 +134,7 @@
     if (isElement(elem) && elem.childNodes.length > 0) {
       var nestedScriptTags = elem.getElementsByTagName('script');
       // iterate backwards ensuring that length is an UInt32
-      for (var j = nestedScriptTags.length >>> 0; j--;) {
+      for (var j = 0, n = nestedScriptTags.length >>> 0; j < n; j++) {
         var maybeScriptTag = nestedScriptTags[j];
         if (isScriptTag(maybeScriptTag)) {
           array.push(maybeScriptTag);

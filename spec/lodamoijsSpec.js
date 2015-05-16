@@ -139,5 +139,38 @@ describe('Lodamoijs', function () {
 
       jasmine.clock().tick(2);
     });
+
+    it('should check that scripts are evaluated in order', function (done) {
+      var varName1 = newRandomVariableName('a');
+      var varName2 = newRandomVariableName('b');
+      var varName3 = newRandomVariableName('c');
+      var nestedHtml =
+        '<script>' +
+        'var '+varName1+' = 42;' +
+        '</script>' +
+        '<script>' +
+        'var '+varName2+' = '+varName1+' + 1;' +
+        '</script>' +
+        '<script>' +
+        'var '+varName3+' = '+varName1+' + '+varName2+';' +
+        '</script>';
+
+      var tmpElement = document.createElement('div');
+
+      tmpElement.innerHTML = nestedHtml;
+      var lodamoi = new Lodamoi([
+        tmpElement
+      ]);
+
+      lodamoi.load(function() {
+        expect(window[varName1]).toBe(42);
+        expect(window[varName2]).toBe(43);
+        expect(window[varName3]).toBe(85);
+        expect(window.VisSense).toBeDefined();
+        defer(done);
+      });
+
+      jasmine.clock().tick(2);
+    });
   });
 });
