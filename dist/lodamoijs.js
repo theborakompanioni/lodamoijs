@@ -4,25 +4,36 @@
     window.Lodamoi = factory(window.document);
 }(this, function(document) {
     "use strict";
+    function evalScript(stringJavascriptSource, onLoad) {
+        var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+        script.type = "text/javascript", script.appendChild(sourceAsTextNode);
+        var removeFromHead = appendTagToHead(script);
+        onLoadOrNoop(), removeFromHead();
+    }
     function loadScript(scriptSrc, onLoad) {
         var script = document.createElement("script");
-        script.type = "text/javascript", script.src = scriptSrc, appendTagToHeadAndRemoveOnLoad(script, onLoad);
+        script.type = "text/javascript", script.src = scriptSrc;
+        var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeFromHead = appendTagToHead(script, function(e) {
+            onLoadOrNoop(e), removeFromHead();
+        });
     }
-    function evalScript(stringJavascriptSource, onLoad) {
-        var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource);
-        script.type = "text/javascript", script.appendChild(sourceAsTextNode), appendTagToHeadAndRemoveOnLoad(script, onLoad);
-    }
-    function appendTagToHeadAndRemoveOnLoad(tag, onLoad) {
+    function appendTagToHead(tag, onLoad) {
         if (isElement(tag)) {
-            var head = document.getElementsByTagName("head")[0] || document.documentElement, onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, eventListener = function(e) {
-                onLoadOrNoop(e), head.removeChild(tag);
+            var head = document.getElementsByTagName("head")[0] || document.documentElement;
+            if (isFunction(onLoad)) {
+                var eventListener = function(e) {
+                    onLoad(e);
+                };
+                tag.readyState ? tag.onreadystatechange = function(e) {
+                    ("loaded" === tag.readyState || "complete" === tag.readyState) && (tag.onreadystatechange = null, 
+                    eventListener(e));
+                } : tag.addEventListener ? tag.addEventListener("load", eventListener, !1) : tag.attachEvent && tag.attachEvent("load", eventListener);
+            }
+            return head.appendChild(tag), function() {
+                head.removeChild(tag);
             };
-            tag.readyState ? tag.onreadystatechange = function(e) {
-                ("loaded" === tag.readyState || "complete" === tag.readyState) && (tag.onreadystatechange = null, 
-                eventListener(e));
-            } : tag.addEventListener ? tag.addEventListener("load", eventListener, !1) : tag.attachEvent && tag.attachEvent("load", eventListener), 
-            head.appendChild(tag);
         }
+        return NOOP;
     }
     function isFunction(value) {
         return "function" == typeof value;

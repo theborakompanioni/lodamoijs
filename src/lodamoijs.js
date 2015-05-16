@@ -8,52 +8,65 @@
   var NOOP = function () {
   };
 
+  function evalScript(stringJavascriptSource, onLoad) {
+    var script = document.createElement('script');
+    var sourceAsTextNode = document.createTextNode(stringJavascriptSource);
+    var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+
+    script.type = 'text/javascript';
+    script.appendChild(sourceAsTextNode);
+
+    var removeFromHead = appendTagToHead(script);
+    onLoadOrNoop();
+    removeFromHead();
+  }
+
   function loadScript(scriptSrc, onLoad) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = scriptSrc;
 
-    appendTagToHeadAndRemoveOnLoad(script, onLoad);
+    var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+    var removeFromHead = appendTagToHead(script, function (e) {
+      onLoadOrNoop(e);
+      // Be nice and clean: immediately remove the script after evaluation!
+      removeFromHead();
+    });
   }
 
-  function evalScript(stringJavascriptSource, onLoad) {
-    var script = document.createElement('script'),
-      sourceAsTextNode = document.createTextNode(stringJavascriptSource);
-
-    script.type = 'text/javascript';
-    script.appendChild(sourceAsTextNode);
-
-    appendTagToHeadAndRemoveOnLoad(script, onLoad);
-  }
-
-  function appendTagToHeadAndRemoveOnLoad(tag, onLoad) {
+  function appendTagToHead(tag, onLoad) {
     if (isElement(tag)) {
       var head = document.getElementsByTagName('head')[0] || document.documentElement;
 
-      var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
-
-      var eventListener = function (e) {
-        onLoadOrNoop(e);
-        // Be nice and clean: immediately remove the script after evaluation!
-        head.removeChild(tag);
-      };
-
-      if (tag.readyState) { // IE
-        tag.onreadystatechange = function (e) {
-          if (tag.readyState === 'loaded' || tag.readyState === 'complete') {
-            tag.onreadystatechange = null;
-            eventListener(e);
-          }
+      if(isFunction(onLoad)) {
+        var eventListener = function (e) {
+          onLoad(e);
         };
-      } else if (tag.addEventListener) {
-        tag.addEventListener('load', eventListener, false);
-      } else if (tag.attachEvent) {
-        tag.attachEvent('load', eventListener);
+
+        if (tag.readyState) { // IE
+          tag.onreadystatechange = function (e) {
+            if (tag.readyState === 'loaded' || tag.readyState === 'complete') {
+              tag.onreadystatechange = null;
+              eventListener(e);
+            }
+          };
+        } else if (tag.addEventListener) {
+          tag.addEventListener('load', eventListener, false);
+        } else if (tag.attachEvent) {
+          tag.attachEvent('load', eventListener);
+        }
       }
 
       head.appendChild(tag);
       //head.insertBefore(script, head.firstChild);
+
+      return function() {
+        // Be nice and clean: immediately remove the script after evaluation!
+        head.removeChild(tag);
+      };
     }
+
+    return NOOP;
   }
 
   function isFunction(value) {
