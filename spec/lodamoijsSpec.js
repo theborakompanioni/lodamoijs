@@ -37,8 +37,8 @@ describe('Lodamoijs', function () {
     var obj1 = new Lodamoi();
     var obj2 = lodamoi();
 
-    expect(obj1).toBeDefined();
-    expect(obj2).toBeDefined();
+    expect(Lodamoi.prototype.isPrototypeOf(obj1)).toBe(true);
+    expect(Lodamoi.prototype.isPrototypeOf(obj2)).toBe(true);
   });
 
   describe('loading scripts', function () {
