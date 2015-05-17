@@ -40,10 +40,56 @@ http.get('page.html', function(htmlTags) {
 });
 ```
 
+
+Limitations
+------
+
+### Looks like an URL?
+The current implementation matches urls by protocol prefix.
+Trying the following won't work as expected:
+
+```javascript
+Lodamoi(['/from/same/origin/script.js']).load(function() {
+  // ...
+});
+```
+
+There is alternative to treat any given parameter as url:
+```javascript
+Lodamoi.url('/from/same/origin/script.js').load(function() {
+  // ...
+});
+```
+
+### Unordered execution
+Caution when using an element with `<script`> tags.
+The following does not work as expected:
+```html
+<div id="myElement">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script>
+    jQuery('#myElement').hide();
+  </script>
+</div>
+```
+
+```javascript
+var myElement = document.getElementById('myElement');
+Lodamoi([
+    myElement
+]).load(function() {
+  // ...
+});
+```
+
+In this example `jQuery` may or may not be defined when the second script tag gets evaluated.
+
 Further Reading
 ------
+- [Loading Scripts Without Blocking](http://www.stevesouders.com/blog/2009/04/27/loading-scripts-without-blocking/)
 - [appendChild vs insertBefore](http://www.stevesouders.com/blog/2010/05/11/appendchild-vs-insertbefore/)
 - [Including Tags vs eval()](http://stackoverflow.com/questions/8380204/is-there-a-performance-gain-in-including-script-tags-as-opposed-to-using-eval)
+- [Script Injected Async Scripts Considered Harmful](https://www.igvita.com/2014/05/20/script-injected-async-scripts-considered-harmful/)
 
 License
 -------

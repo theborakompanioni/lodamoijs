@@ -5,16 +5,17 @@
 }(this, function(document) {
     "use strict";
     function evalScript(stringJavascriptSource, onLoad) {
-        var script = document.createElement("script"), sourceAsTextNode = document.createTextNode(stringJavascriptSource);
-        script.type = "text/javascript", script.async = !1, script.appendChild(sourceAsTextNode);
+        var script = document.createElement(SCRIPT_TAG_NAME), sourceAsTextNode = document.createTextNode(stringJavascriptSource);
+        script.type = SCRIPT_TAG_TYPE, script.appendChild(sourceAsTextNode);
         var removeElementFromDom = addElementToDom(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
         window.setTimeout(function() {
             onLoadOrNoop(), removeElementFromDom();
         }, 1);
     }
-    function loadScript(scriptSrc, onLoad) {
-        var script = document.createElement("script");
-        script.type = "text/javascript", script.async = !0, script.src = scriptSrc;
+    function loadScriptFromUrl(scriptSrc, onLoad, options) {
+        var script = document.createElement(SCRIPT_TAG_NAME);
+        script.type = SCRIPT_TAG_TYPE, script.defer = script.async = options ? !!options.async : !1, 
+        script.src = scriptSrc;
         var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeElementFromDom = addElementToDom(script, function(e) {
             onLoadOrNoop(e), removeElementFromDom();
         });
@@ -51,9 +52,6 @@
     function nodeNameEquals(elem, name) {
         return isElement(elem) && elem.nodeName && elem.nodeName.toUpperCase() === name.toUpperCase();
     }
-    function loadOrEvalScriptTag(scriptTag, onLoad) {
-        canLoadScriptTag(scriptTag) ? loadScript(scriptTag.src, onLoad) : canEvalScriptTag(scriptTag) && evalScript(getElementContent(scriptTag), onLoad);
-    }
     function canLoadScriptTag(scriptTag) {
         return isScriptTag(scriptTag) && isString(scriptTag.src) && scriptTag.src;
     }
@@ -62,6 +60,9 @@
     }
     function getElementContent(elem) {
         return isElement(elem) ? elem.text || elem.textContent || elem.innerHTML || "" : "";
+    }
+    function throwIllegalArgumentError(message) {
+        throw new Error("Illegal argument" + (message ? ": " + message : "."));
     }
     function looksLikeAnUrl(testUrl) {
         return isString(testUrl) && /^(https?:\/\/|\/\/)[^ \t\r\n\v\f]+\.[^ \t\r\n\v\f]+$/.test(testUrl);
@@ -75,35 +76,71 @@
         }
         return array;
     }
-    function Lodamoi(scripts) {
-        return this instanceof Lodamoi ? void (this._scripts = scripts || []) : new Lodamoi(scripts);
+    function LodCode(code) {
+        return this instanceof LodCode ? (code && isString(code) || throwIllegalArgumentError(), 
+        void (this._val = code)) : new LodCode(code);
     }
-    var ELEMENT_NODE_TYPE = 1, NOOP = function() {};
-    return Lodamoi._addElementToDom = addElementToDom, Lodamoi._evalScript = evalScript, 
-    Lodamoi._loadScript = loadScript, Lodamoi.prototype = {
+    function LodUrl(url) {
+        return this instanceof LodUrl ? (url || throwIllegalArgumentError(), this._val = url, 
+        void (this._async = !1)) : new LodUrl(url);
+    }
+    function LodTag(tag) {
+        return this instanceof LodTag ? (tag && isElement(tag) || throwIllegalArgumentError(), 
+        this._val = tag, void (this._async = !!tag.async)) : new LodTag(tag);
+    }
+    function Lodamoi(values) {
+        return this instanceof Lodamoi ? void (this._values = values || []) : new Lodamoi(values);
+    }
+    var ELEMENT_NODE_TYPE = 1, SCRIPT_TAG_NAME = "script", SCRIPT_TAG_TYPE = "text/javascript", NOOP = function() {};
+    return LodCode.prototype = {
+        async: function() {
+            return this;
+        },
+        load: function(onLoad) {
+            var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+            evalScript(this._val, onLoadOrNoop);
+        }
+    }, LodUrl.prototype = {
+        async: function() {
+            return this._async = !0, this;
+        },
+        load: function(onLoad) {
+            var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+            loadScriptFromUrl(this._val, onLoadOrNoop, {
+                async: this._async
+            });
+        }
+    }, LodTag.prototype = {
+        async: function() {
+            return this._async = !0, this;
+        },
+        load: function(onLoad) {
+            var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, elementTag = this._val;
+            isScriptTag(elementTag) ? canLoadScriptTag(elementTag) ? loadScriptFromUrl(elementTag.src, onLoadOrNoop, {
+                async: this._async
+            }) : canEvalScriptTag(elementTag) && evalScript(getElementContent(elementTag), onLoadOrNoop) : new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoadOrNoop);
+        }
+    }, Lodamoi._addElementToDom = addElementToDom, Lodamoi.code = function(code) {
+        return new LodCode(code);
+    }, Lodamoi.url = function(url) {
+        return new LodUrl(url);
+    }, Lodamoi.tag = function(tag) {
+        return new LodTag(tag);
+    }, Lodamoi.prototype = {
         load: function(callback) {
             var callbackOrNoop = isFunction(callback) ? callback : NOOP;
-            if (0 === this._scripts.length) return void callbackOrNoop();
-            for (var scriptsLength = this._scripts.length, context = {
+            if (0 === this._values.length) return void callbackOrNoop();
+            for (var valuesCount = this._values.length, context = {
                 loadCount: 0,
-                totalRequired: scriptsLength,
+                totalRequired: valuesCount,
                 onLoad: function() {
                     this.loadCount++, this.loadCount === this.totalRequired && callbackOrNoop();
                 }
             }, onLoad = function(e) {
                 context.onLoad(e);
-            }, i = 0; scriptsLength > i; i++) {
-                var sourceOrUrlOrScriptTag = this._scripts[i];
-                if (isElement(sourceOrUrlOrScriptTag)) {
-                    var elementTag = sourceOrUrlOrScriptTag;
-                    isScriptTag(elementTag) ? loadOrEvalScriptTag(elementTag, onLoad) : new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
-                } else if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
-                    var url = sourceOrUrlOrScriptTag;
-                    loadScript(url, onLoad);
-                } else if (isString(sourceOrUrlOrScriptTag)) {
-                    var source = sourceOrUrlOrScriptTag;
-                    evalScript(source, onLoad);
-                } else onLoad();
+            }, i = 0; valuesCount > i; i++) {
+                var value = this._values[i];
+                isElement(value) ? Lodamoi.tag(value).load(onLoad) : looksLikeAnUrl(value) ? Lodamoi.url(value).load(onLoad) : isString(value) ? Lodamoi.code(value).load(onLoad) : onLoad();
             }
         }
     }, Lodamoi;

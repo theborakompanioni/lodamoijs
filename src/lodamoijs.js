@@ -5,15 +5,16 @@
 })(this, function (document, undefined) {
   'use strict';
   var ELEMENT_NODE_TYPE = 1;
+  var SCRIPT_TAG_NAME = 'script';
+  var SCRIPT_TAG_TYPE = 'text/javascript';
   var NOOP = function () {
   };
 
   function evalScript(stringJavascriptSource, onLoad) {
-    var script = document.createElement('script');
+    var script = document.createElement(SCRIPT_TAG_NAME);
     var sourceAsTextNode = document.createTextNode(stringJavascriptSource);
 
-    script.type = 'text/javascript';
-    script.async = false;
+    script.type = SCRIPT_TAG_TYPE;
     script.appendChild(sourceAsTextNode);
 
     var removeElementFromDom = addElementToDom(script);
@@ -25,10 +26,10 @@
     }, 1);
   }
 
-  function loadScript(scriptSrc, onLoad) {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
+  function loadScriptFromUrl(scriptSrc, onLoad, options) {
+    var script = document.createElement(SCRIPT_TAG_NAME);
+    script.type = SCRIPT_TAG_TYPE;
+    script.defer = script.async = options ? !!options.async : false;
     script.src = scriptSrc;
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
@@ -96,18 +97,6 @@
     return isElement(elem) && elem.nodeName && elem.nodeName.toUpperCase() === name.toUpperCase();
   }
 
-  function loadOrEvalScriptTag(scriptTag, onLoad) {
-    if (canLoadScriptTag(scriptTag)) {
-      loadScript(scriptTag.src, onLoad);
-    } else if (canEvalScriptTag(scriptTag)) {
-      evalScript(getElementContent(scriptTag), onLoad);
-    }
-
-    // if (scriptTag.parentNode) {
-    //   scriptTag.parentNode.removeChild(scriptTag);
-    // }
-  }
-
   function canLoadScriptTag(scriptTag) {
     return isScriptTag(scriptTag) && isString(scriptTag.src) && scriptTag.src;
   }
@@ -120,8 +109,10 @@
     return isElement(elem) ? elem.text || elem.textContent || elem.innerHTML || '' : '';
   }
 
+  function throwIllegalArgumentError(message) {
+    throw new Error('Illegal argument' + (message ? ': ' + message : '.'));
+  }
   /*--------------------------------------------------------------------------*/
-
 
   function looksLikeAnUrl(testUrl) {
     return isString(testUrl) && /^(https?:\/\/|\/\/)[^ \t\r\n\v\f]+\.[^ \t\r\n\v\f]+$/.test(testUrl);
@@ -135,43 +126,119 @@
     var array = [];
     if (isElement(elem) && elem.childNodes.length > 0) {
       var nestedScriptTags = elem.getElementsByTagName('script');
-      // iterate backwards ensuring that length is an UInt32
       for (var j = 0, n = nestedScriptTags.length >>> 0; j < n; j++) {
         var maybeScriptTag = nestedScriptTags[j];
         if (isScriptTag(maybeScriptTag)) {
           array.push(maybeScriptTag);
-          // array.push(maybeScriptTag.parentNode ?
-          // maybeScriptTag.parentNode.removeChild(maybeScriptTag) : maybeScriptTag);
         }
       }
     }
     return array;
   }
 
-  function Lodamoi(scripts) {
+  function LodCode(code) {
+    if (!(this instanceof LodCode)) {
+      return new LodCode(code);
+    }
+    if (!code || !isString(code)) {
+      throwIllegalArgumentError();
+    }
+    this._val = code;
+  }
+  LodCode.prototype = {
+    async: function() {
+      return this;
+    },
+    load: function (onLoad) {
+      var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+      evalScript(this._val, onLoadOrNoop);
+    }
+  };
+
+  function LodUrl(url) {
+    if (!(this instanceof LodUrl)) {
+      return new LodUrl(url);
+    }
+    if (!url) {
+      throwIllegalArgumentError();
+    }
+    this._val = url;
+    this._async = false;
+  }
+  LodUrl.prototype = {
+    async: function() {
+      this._async = true;
+      return this;
+    },
+    load: function (onLoad) {
+      var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+      loadScriptFromUrl(this._val, onLoadOrNoop, { async: this._async });
+    }
+  };
+
+  function LodTag(tag) {
+    if (!(this instanceof LodTag)) {
+      return new LodTag(tag);
+    }
+    if (!tag || !isElement(tag)) {
+      throwIllegalArgumentError();
+    }
+    this._val = tag;
+    this._async = !!tag.async;
+  }
+  LodTag.prototype = {
+    async: function() {
+      this._async = true;
+      return this;
+    },
+    load: function (onLoad) {
+      var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+
+      var elementTag = this._val;
+      if (!isScriptTag(elementTag)) {
+        new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoadOrNoop);
+      } else {
+        if (canLoadScriptTag(elementTag)) {
+          loadScriptFromUrl(elementTag.src, onLoadOrNoop, { async: this._async });
+        } else if (canEvalScriptTag(elementTag)) {
+          evalScript(getElementContent(elementTag), onLoadOrNoop);
+        }
+      }
+    }
+  };
+
+  function Lodamoi(values) {
     if (!(this instanceof Lodamoi)) {
-      return new Lodamoi(scripts);
+      return new Lodamoi(values);
     }
 
-    this._scripts = scripts || [];
+    this._values = values || [];
   }
 
   Lodamoi._addElementToDom = addElementToDom;
-  Lodamoi._evalScript = evalScript;
-  Lodamoi._loadScript = loadScript;
+
+  Lodamoi.code = function(code) {
+    return new LodCode(code);
+  };
+  Lodamoi.url = function(url) {
+    return new LodUrl(url);
+  };
+  Lodamoi.tag = function(tag) {
+    return new LodTag(tag);
+  };
 
   Lodamoi.prototype = {
     load: function (callback) {
       var callbackOrNoop = isFunction(callback) ? callback : NOOP;
-      if (this._scripts.length === 0) {
+      if (this._values.length === 0) {
         callbackOrNoop();
         return;
       }
 
-      var scriptsLength = this._scripts.length;
+      var valuesCount = this._values.length;
       var context = {
         loadCount: 0,
-        totalRequired: scriptsLength,
+        totalRequired: valuesCount,
         onLoad: function () {
           this.loadCount++;
           if (this.loadCount === this.totalRequired) {
@@ -184,24 +251,17 @@
         context.onLoad(e);
       };
 
-      for (var i = 0; i < scriptsLength; i++) {
-        var sourceOrUrlOrScriptTag = this._scripts[i];
+      for (var i = 0; i < valuesCount; i++) {
+        var value = this._values[i];
 
-        if (isElement(sourceOrUrlOrScriptTag)) {
-          var elementTag = sourceOrUrlOrScriptTag;
-          if (isScriptTag(elementTag)) {
-            loadOrEvalScriptTag(elementTag, onLoad);
-          } else {
-            new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoad);
-          }
+        if (isElement(value)) {
+          Lodamoi.tag(value).load(onLoad);
         }
-        else if (looksLikeAnUrl(sourceOrUrlOrScriptTag)) {
-          var url = sourceOrUrlOrScriptTag;
-          loadScript(url, onLoad);
+        else if (looksLikeAnUrl(value)) {
+          Lodamoi.url(value).load(onLoad);
         }
-        else if (isString(sourceOrUrlOrScriptTag)) {
-          var source = sourceOrUrlOrScriptTag;
-          evalScript(source, onLoad);
+        else if (isString(value)) {
+          Lodamoi.code(value).load(onLoad);
         }
         else {
           onLoad();
