@@ -13,7 +13,7 @@ describe('Lodamoijs', function () {
   };
 
   var newRandomVariableName = function(postfix) {
-    return 'foobar' + new Date().getTime() + '_' + randomNumber() + '_' + postfix;
+    return 'foobar_' + randomNumber() + (postfix ? '_' + postfix : '');
   };
 
 
@@ -141,19 +141,20 @@ describe('Lodamoijs', function () {
     });
 
     it('should check that scripts are evaluated in order', function (done) {
-      var varName1 = newRandomVariableName('a');
-      var varName2 = newRandomVariableName('b');
-      var varName3 = newRandomVariableName('c');
-      var nestedHtml =
-        '<script>' +
-        'var '+varName1+' = 42;' +
-        '</script>' +
-        '<script>' +
-        'var '+varName2+' = '+varName1+' + 1;' +
-        '</script>' +
-        '<script>' +
-        'var '+varName3+' = '+varName1+' + '+varName2+';' +
-        '</script>';
+      var varName = newRandomVariableName();
+      var nestedHtml = '<script>' +
+        'var '+varName+' = 1;' +
+      '</script>';
+
+      var i = 1, prevVarName = varName, currentVarName;
+      do {
+        currentVarName = newRandomVariableName(i);
+        nestedHtml += '<script>' +
+          'var '+currentVarName+' = '+prevVarName+' + 1;' +
+          '</script>';
+        prevVarName = currentVarName;
+        i++;
+      } while(i < 100);
 
       var tmpElement = document.createElement('div');
 
@@ -163,10 +164,8 @@ describe('Lodamoijs', function () {
       ]);
 
       lodamoi.load(function() {
-        expect(window[varName1]).toBe(42);
-        expect(window[varName2]).toBe(43);
-        expect(window[varName3]).toBe(85);
-        expect(window.VisSense).toBeDefined();
+        expect(window[varName]).toBe(1);
+        expect(window[currentVarName]).toBe(100);
         defer(done);
       });
 
