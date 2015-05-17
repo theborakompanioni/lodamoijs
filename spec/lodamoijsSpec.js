@@ -34,11 +34,21 @@ describe('Lodamoijs', function () {
 
   it('should create valid Lodamoi instances', function () {
     var lodamoi = Lodamoi;
-    var obj1 = new Lodamoi();
-    var obj2 = lodamoi();
+    var obj1 = new Lodamoi(['']);
+    var obj2 = lodamoi(['']);
 
     expect(Lodamoi.prototype.isPrototypeOf(obj1)).toBe(true);
     expect(Lodamoi.prototype.isPrototypeOf(obj2)).toBe(true);
+  });
+
+  it('should throw an error if instantiated without a parameter', function () {
+    try {
+      var obj = new Lodamoi();
+      obj.load();
+      expect(obj).toBe(1);
+    } catch(e) {
+      expect(true).toBe(true);
+    }
   });
 
   describe('evaluate', function () {

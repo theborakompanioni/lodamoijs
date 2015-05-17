@@ -38,7 +38,10 @@
         };
     }
     function isFunction(value) {
-        return "function" == typeof value;
+        return "function" == typeof value || !1;
+    }
+    function isArray(value) {
+        return value && "object" == typeof value && "number" == typeof value.length && "[object Array]" === Object.prototype.toString.call(value) || !1;
     }
     function isString(value) {
         return "string" == typeof value;
@@ -89,7 +92,7 @@
         this._val = tag, void (this._async = !!tag.async)) : new LodTag(tag);
     }
     function Lodamoi(values) {
-        return this instanceof Lodamoi ? void (this._values = values || []) : new Lodamoi(values);
+        return this instanceof Lodamoi ? (values || throwIllegalArgumentError(), void (this._values = isArray(values) ? values : [ values ])) : new Lodamoi(values);
     }
     var ELEMENT_NODE_TYPE = 1, SCRIPT_TAG_NAME = "script", SCRIPT_TAG_TYPE = "text/javascript", NOOP = function() {};
     return LodCode.prototype = {

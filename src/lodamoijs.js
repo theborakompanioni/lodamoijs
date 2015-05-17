@@ -77,8 +77,20 @@
     };
   }
 
+  /**
+  * From lodash: [isFunction](https://lodash.com/docs#isFunction)
+  */
   function isFunction(value) {
-    return typeof value === 'function';
+    return typeof value === 'function' || false;
+  }
+
+  /**
+  * From lodash: [isArray](https://lodash.com/docs#isArray)
+  */
+  function isArray(value) {
+    return (value &&
+      typeof value === 'object' && typeof value.length === 'number' &&
+      Object.prototype.toString.call(value) === '[object Array]') || false;
   }
 
   function isString(value) {
@@ -211,8 +223,11 @@
     if (!(this instanceof Lodamoi)) {
       return new Lodamoi(values);
     }
+    if (!values) {
+      throwIllegalArgumentError();
+    }
 
-    this._values = values || [];
+    this._values = isArray(values) ? values : [values];
   }
 
   Lodamoi._addElementToDom = addElementToDom;
