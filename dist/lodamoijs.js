@@ -1,4 +1,4 @@
-/*! { "name": "lodamoijs", "version": "0.2.0", "homepage": "https://github.com/theborakompanioni/lodamoijs","copyright": "(c) 2015 theborakompanioni" } */
+/*! { "name": "lodamoijs", "version": "0.3.0", "homepage": "https://github.com/theborakompanioni/lodamoijs","copyright": "(c) 2015 theborakompanioni" } */
 !function(window, factory) {
     "use strict";
     window.Lodamoi = factory(window.document);
