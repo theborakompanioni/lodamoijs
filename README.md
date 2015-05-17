@@ -62,7 +62,7 @@ Lodamoi.url('/from/same/origin/script.js').load(function() {
 ```
 
 ### Unordered execution
-Caution when using an element with `<script`> tags.
+Caution when using an element with `<script`> tags relying on each other.
 The following does not work as expected:
 ```html
 <div id="myElement">
@@ -72,7 +72,6 @@ The following does not work as expected:
   </script>
 </div>
 ```
-
 ```javascript
 var myElement = document.getElementById('myElement');
 Lodamoi([
@@ -82,11 +81,13 @@ Lodamoi([
 });
 ```
 
-In this example `jQuery` may or may not be defined when the second script tag gets evaluated.
+In this example `jQuery` may not be available when the second script tag gets evaluated
+and this will result in `Uncaught ReferenceError: jQuery is not defined`.
 
 Further Reading
 ------
 - [Loading Scripts Without Blocking](http://www.stevesouders.com/blog/2009/04/27/loading-scripts-without-blocking/)
+- [MDN innerHTML Security Considerations](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML#Security_considerations)
 - [appendChild vs insertBefore](http://www.stevesouders.com/blog/2010/05/11/appendchild-vs-insertbefore/)
 - [Including Tags vs eval()](http://stackoverflow.com/questions/8380204/is-there-a-performance-gain-in-including-script-tags-as-opposed-to-using-eval)
 - [Script Injected Async Scripts Considered Harmful](https://www.igvita.com/2014/05/20/script-injected-async-scripts-considered-harmful/)
