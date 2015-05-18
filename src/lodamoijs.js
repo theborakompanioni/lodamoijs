@@ -12,10 +12,16 @@
 
   function evalScript(stringJavascriptSource, onLoad) {
     var script = document.createElement(SCRIPT_TAG_NAME);
-    var sourceAsTextNode = document.createTextNode(stringJavascriptSource);
 
     script.type = SCRIPT_TAG_TYPE;
-    script.appendChild(sourceAsTextNode);
+
+    try {
+      var sourceAsTextNode = document.createTextNode(stringJavascriptSource);
+      script.appendChild(sourceAsTextNode);
+    } catch(e) {
+      // my dear IE..
+      script.text = stringJavascriptSource;
+    }
 
     var removeElementFromDom = addElementToDom(script);
 

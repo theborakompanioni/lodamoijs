@@ -2,11 +2,17 @@
 !function(window, factory) {
     "use strict";
     window.Lodamoi = factory(window.document);
-}(this, function(document) {
+}(this, function(document, undefined) {
     "use strict";
     function evalScript(stringJavascriptSource, onLoad) {
-        var script = document.createElement(SCRIPT_TAG_NAME), sourceAsTextNode = document.createTextNode(stringJavascriptSource);
-        script.type = SCRIPT_TAG_TYPE, script.appendChild(sourceAsTextNode);
+        var script = document.createElement(SCRIPT_TAG_NAME);
+        script.type = SCRIPT_TAG_TYPE;
+        try {
+            var sourceAsTextNode = document.createTextNode(stringJavascriptSource);
+            script.appendChild(sourceAsTextNode);
+        } catch (e) {
+            script.text = stringJavascriptSource;
+        }
         var removeElementFromDom = addElementToDom(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
         window.setTimeout(function() {
             onLoadOrNoop(), removeElementFromDom();
