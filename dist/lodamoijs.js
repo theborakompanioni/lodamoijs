@@ -2,7 +2,7 @@
 !function(window, factory) {
     "use strict";
     window.Lodamoi = factory(window.document);
-}(this, function(document, undefined) {
+}(this, function(document) {
     "use strict";
     function evalScript(stringJavascriptSource, onLoad) {
         var script = document.createElement(SCRIPT_TAG_NAME);
@@ -86,16 +86,13 @@
         return array;
     }
     function LodCode(code) {
-        return this instanceof LodCode ? (code && isString(code) || throwIllegalArgumentError(), 
-        void (this._val = code)) : new LodCode(code);
+        code && isString(code) || throwIllegalArgumentError(), this._val = code;
     }
     function LodUrl(url) {
-        return this instanceof LodUrl ? (url || throwIllegalArgumentError(), this._val = url, 
-        void (this._async = !1)) : new LodUrl(url);
+        url || throwIllegalArgumentError(), this._val = url, this._async = !1;
     }
     function LodTag(tag) {
-        return this instanceof LodTag ? (tag && isElement(tag) || throwIllegalArgumentError(), 
-        this._val = tag, void (this._async = !!tag.async)) : new LodTag(tag);
+        tag && isElement(tag) || throwIllegalArgumentError(), this._val = tag, this._async = !!tag.async;
     }
     function Lodamoi(values) {
         return this instanceof Lodamoi ? (values || throwIllegalArgumentError(), void (this._values = isArray(values) ? values : [ values ])) : new Lodamoi(values);

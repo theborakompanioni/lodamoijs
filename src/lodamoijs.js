@@ -155,9 +155,6 @@
   }
 
   function LodCode(code) {
-    if (!(this instanceof LodCode)) {
-      return new LodCode(code);
-    }
     if (!code || !isString(code)) {
       throwIllegalArgumentError();
     }
@@ -174,9 +171,6 @@
   };
 
   function LodUrl(url) {
-    if (!(this instanceof LodUrl)) {
-      return new LodUrl(url);
-    }
     if (!url) {
       throwIllegalArgumentError();
     }
@@ -195,9 +189,6 @@
   };
 
   function LodTag(tag) {
-    if (!(this instanceof LodTag)) {
-      return new LodTag(tag);
-    }
     if (!tag || !isElement(tag)) {
       throwIllegalArgumentError();
     }
@@ -241,9 +232,11 @@
   Lodamoi.code = function(code) {
     return new LodCode(code);
   };
+
   Lodamoi.url = function(url) {
     return new LodUrl(url);
   };
+
   Lodamoi.tag = function(tag) {
     return new LodTag(tag);
   };
