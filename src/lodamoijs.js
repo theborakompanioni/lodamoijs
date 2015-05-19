@@ -12,7 +12,6 @@
 
   function evalScript(stringJavascriptSource, onLoad) {
     var script = document.createElement(SCRIPT_TAG_NAME);
-
     script.type = SCRIPT_TAG_TYPE;
 
     try {
@@ -108,7 +107,7 @@
   }
 
   function isScriptTag(elem) {
-    return isElement(elem) && nodeNameEquals(elem, 'script');
+    return isElement(elem) && nodeNameEquals(elem, SCRIPT_TAG_NAME);
   }
 
   function nodeNameEquals(elem, name) {
@@ -143,7 +142,7 @@
 
     var array = [];
     if (isElement(elem) && elem.childNodes.length > 0) {
-      var nestedScriptTags = elem.getElementsByTagName('script');
+      var nestedScriptTags = elem.getElementsByTagName(SCRIPT_TAG_NAME);
       for (var j = 0, n = nestedScriptTags.length >>> 0; j < n; j++) {
         var maybeScriptTag = nestedScriptTags[j];
         if (isScriptTag(maybeScriptTag)) {
@@ -162,6 +161,7 @@
   }
   LodCode.prototype = {
     async: function() {
+      // no async for LodCode
       return this;
     },
     load: function (onLoad) {

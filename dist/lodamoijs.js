@@ -56,7 +56,7 @@
         return value && value.nodeType === ELEMENT_NODE_TYPE || !1;
     }
     function isScriptTag(elem) {
-        return isElement(elem) && nodeNameEquals(elem, "script");
+        return isElement(elem) && nodeNameEquals(elem, SCRIPT_TAG_NAME);
     }
     function nodeNameEquals(elem, name) {
         return isElement(elem) && elem.nodeName && elem.nodeName.toUpperCase() === name.toUpperCase();
@@ -79,7 +79,7 @@
     function getAnyNestedScriptTagsOfElement(elem) {
         if (isScriptTag(elem)) return [ elem ];
         var array = [];
-        if (isElement(elem) && elem.childNodes.length > 0) for (var nestedScriptTags = elem.getElementsByTagName("script"), j = 0, n = nestedScriptTags.length >>> 0; n > j; j++) {
+        if (isElement(elem) && elem.childNodes.length > 0) for (var nestedScriptTags = elem.getElementsByTagName(SCRIPT_TAG_NAME), j = 0, n = nestedScriptTags.length >>> 0; n > j; j++) {
             var maybeScriptTag = nestedScriptTags[j];
             isScriptTag(maybeScriptTag) && array.push(maybeScriptTag);
         }
