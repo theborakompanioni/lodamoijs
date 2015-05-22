@@ -153,21 +153,28 @@
     return array;
   }
 
+  function Lodable() {
+    this._async = false;
+  }
+  Lodable.prototype.async = function() {
+    this._async = true;
+    return this;
+  };
+  Lodable.prototype.load = NOOP;
+
   function LodCode(code) {
     if (!code || !isString(code)) {
       throwIllegalArgumentError();
     }
     this._val = code;
   }
-  LodCode.prototype = {
-    async: function() {
-      // no async for LodCode
-      return this;
-    },
-    load: function (onLoad) {
-      var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
-      evalScript(this._val, onLoadOrNoop);
-    }
+  LodCode.prototype = Object.create(
+    Lodable.prototype
+  );
+
+  LodCode.prototype.load = function (onLoad) {
+    var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+    evalScript(this._val, onLoadOrNoop);
   };
 
   function LodUrl(url) {
@@ -175,17 +182,15 @@
       throwIllegalArgumentError();
     }
     this._val = url;
-    this._async = false;
   }
-  LodUrl.prototype = {
-    async: function() {
-      this._async = true;
-      return this;
-    },
-    load: function (onLoad) {
-      var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
-      loadScriptFromUrl(this._val, onLoadOrNoop, { async: this._async });
-    }
+
+  LodUrl.prototype = Object.create(
+    Lodable.prototype
+  );
+
+  LodUrl.prototype.load = function (onLoad) {
+    var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+    loadScriptFromUrl(this._val, onLoadOrNoop, { async: this._async });
   };
 
   function LodTag(tag) {
@@ -195,23 +200,22 @@
     this._val = tag;
     this._async = !!tag.async;
   }
-  LodTag.prototype = {
-    async: function() {
-      this._async = true;
-      return this;
-    },
-    load: function (onLoad) {
-      var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
 
-      var elementTag = this._val;
-      if (!isScriptTag(elementTag)) {
-        new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoadOrNoop);
-      } else {
-        if (canLoadScriptTag(elementTag)) {
-          loadScriptFromUrl(elementTag.src, onLoadOrNoop, { async: this._async });
-        } else if (canEvalScriptTag(elementTag)) {
-          evalScript(getElementContent(elementTag), onLoadOrNoop);
-        }
+  LodTag.prototype = Object.create(
+    Lodable.prototype
+  );
+
+  LodTag.prototype.load = function (onLoad) {
+    var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+
+    var elementTag = this._val;
+    if (!isScriptTag(elementTag)) {
+      new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoadOrNoop);
+    } else {
+      if (canLoadScriptTag(elementTag)) {
+        loadScriptFromUrl(elementTag.src, onLoadOrNoop, { async: this._async });
+      } else if (canEvalScriptTag(elementTag)) {
+        evalScript(getElementContent(elementTag), onLoadOrNoop);
       }
     }
   };
@@ -268,7 +272,11 @@
       for (var i = 0; i < valuesCount; i++) {
         var value = this._values[i];
 
-        if (isElement(value)) {
+        var lodable = Lodable.prototype.isPrototypeOf(value);
+        if(lodable) {
+          value.load(onLoad);
+        }
+        else if (isElement(value)) {
           Lodamoi.tag(value).load(onLoad);
         }
         else if (looksLikeAnUrl(value)) {

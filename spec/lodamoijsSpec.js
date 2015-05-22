@@ -16,16 +16,9 @@ describe('Lodamoijs', function () {
     return 'foobar_' + randomNumber() + (postfix ? '_' + postfix : '');
   };
 
-
-  // TODO: uncomment this if jasmine supports mocking the Date object natively
-  //it('should verify that jasmine mocks the Date object', function () {
-  //    expect(jasmine.clock().mockDate).toBeDefined();
-  //});
-
   beforeEach(function () {
     jasmine.clock().install();
-
-    //jasmine.clock().mockDate();
+    jasmine.clock().mockDate();
   });
 
   afterEach(function () {
@@ -52,6 +45,29 @@ describe('Lodamoijs', function () {
   });
 
   describe('evaluate', function () {
+
+    describe('Lodable', function () {
+
+      afterEach(function () {
+        delete window.jQuery;
+      });
+
+      it('should load a Lodable instance', function (done) {
+        var varName1 = newRandomVariableName('a');
+        var lodamoi = new Lodamoi([
+          Lodamoi.code(
+            'var ' + varName1 + ' = 11; ' + varName1 + ' = ' + varName1 + ' + 1;'
+          )
+        ]);
+
+        lodamoi.load(function () {
+          expect(window[varName1]).toBe(11 + 1);
+          defer(done);
+        });
+
+        jasmine.clock().tick(2);
+      });
+    });
 
     describe('code', function () {
       it('should evaluate a script', function (done) {
