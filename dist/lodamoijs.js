@@ -13,7 +13,7 @@
         } catch (e) {
             script.text = stringJavascriptSource;
         }
-        var removeElementFromDom = addElementToDom(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
+        var removeElementFromDom = addNodeToHead(script), onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
         window.setTimeout(function() {
             onLoadOrNoop(), removeElementFromDom();
         }, 1);
@@ -22,11 +22,11 @@
         var script = document.createElement(SCRIPT_TAG_NAME);
         script.type = SCRIPT_TAG_TYPE, script.defer = script.async = options ? !!options.async : !1, 
         script.src = scriptSrc;
-        var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeElementFromDom = addElementToDom(script, function(e) {
+        var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP, removeElementFromDom = addNodeToHead(script, function(e) {
             onLoadOrNoop(e), removeElementFromDom();
         });
     }
-    function addElementToDom(tag, onLoad) {
+    function addNodeToHead(tag, onLoad) {
         if (!isElement(tag)) return NOOP;
         var head = document.getElementsByTagName("head")[0] || document.documentElement;
         if (isFunction(onLoad)) {
@@ -123,7 +123,7 @@
         isScriptTag(elementTag) ? canLoadScriptTag(elementTag) ? loadScriptFromUrl(elementTag.src, onLoadOrNoop, {
             async: this._async
         }) : canEvalScriptTag(elementTag) && evalScript(getElementContent(elementTag), onLoadOrNoop) : new Lodamoi(getAnyNestedScriptTagsOfElement(elementTag)).load(onLoadOrNoop);
-    }, Lodamoi._addElementToDom = addElementToDom, Lodamoi.code = function(code) {
+    }, Lodamoi._addNodeToHead = addNodeToHead, Lodamoi.code = function(code) {
         return new LodCode(code);
     }, Lodamoi.url = function(url) {
         return new LodUrl(url);

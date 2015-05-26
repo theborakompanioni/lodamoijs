@@ -22,7 +22,7 @@
       script.text = stringJavascriptSource;
     }
 
-    var removeElementFromDom = addElementToDom(script);
+    var removeElementFromDom = addNodeToHead(script);
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
     window.setTimeout(function() {
@@ -38,13 +38,13 @@
     script.src = scriptSrc;
 
     var onLoadOrNoop = isFunction(onLoad) ? onLoad : NOOP;
-    var removeElementFromDom = addElementToDom(script, function (e) {
+    var removeElementFromDom = addNodeToHead(script, function (e) {
       onLoadOrNoop(e);
       removeElementFromDom();
     });
   }
 
-  function addElementToDom(tag, onLoad) {
+  function addNodeToHead(tag, onLoad) {
     if (!isElement(tag)) {
       return NOOP;
     }
@@ -237,7 +237,7 @@
     this._values = isArray(values) ? values : [values];
   }
 
-  Lodamoi._addElementToDom = addElementToDom;
+  Lodamoi._addNodeToHead = addNodeToHead;
 
   Lodamoi.code = function(code) {
     return new LodCode(code);
