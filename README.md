@@ -9,43 +9,59 @@ A simple asynchronous JavaScript evaluator.
 
 Usage
 ------
-
-### URLs
+#### URLs
 ```javascript
-L(['https://rawgit.com/vissense/vissense/0.8.0/dist/vissense.js']).load(function() {
-  L(['https://rawgit.com/vissense/vissense-percentage-time-test/0.5.0/dist/vissense-percentage-time-test.js']).load(function() {
+L([
+  L.url('/scripts/jQuery.js'),
+  L.url('/scripts/vissense.js')
+]).load(function() {
+  L.url('/scripts/vissense-percentage-time-test.js').load(function() {
     // do awesome stuff
   });
 });
 ```
 
-### Code
+#### Code
 ```javascript
 L([
-  'var a = 1;',
-  'var b = a + 1;'
-  ]).load(function() {
+  L.code('var a = 1;'),
+  L.code('var b = a + 1;'),
+]).load(function() {
   console.log(a + b); // -> 3
 });
 ```
 
-### Elements
+#### Elements
 ```javascript
-http.get('page.html', function(htmlTags) {
-  L([
-      htmlTags
-    ]).load(function() {
+http.get('page.html', function(htmlTagsAsString) {
+  var divElement = document.createElement('div');
+  divElement.innerHTML = htmlTagsAsString;
+  
+  L.tag(divElement).load(function() {
     // do awesome stuff
   });
 });
 ```
 
-
 Limitations
 ------
 
+Your can omit verbose constructs like `L.code`, `L.url` or `L.tag` when the elements are distinctive:
+
+```javascript
+L([
+  'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js',
+  'var a = 123;'
+]).load(function() {
+  L('var myJQuery = jQuery.noConflict()').load(function() {
+    // do awesome stuff
+  });
+});
+```
+
 ### Looks like an URL?
-The current implementation matches urls by protocol prefix.
+The current implementation matches urls by protocol prefix: it must be either "http://" or "https://".
+Relative or protocol relative (e.g. `//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js`) are not supported.
 Trying the following won't work as expected:
 
 ```javascript
@@ -54,7 +70,7 @@ L(['/from/same/origin/script.js']).load(function() {
 });
 ```
 
-There is alternative to treat any given parameter as url:
+You have to use the more specific version:
 ```javascript
 L.url('/from/same/origin/script.js').load(function() {
   // ...

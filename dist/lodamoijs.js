@@ -73,8 +73,14 @@
     function throwIllegalArgumentError(message) {
         throw new Error("Illegal argument" + (message ? ": " + message : "."));
     }
+    function stringStartsWith(haystack) {
+        return function(needle) {
+            return needle.length > 0 && haystack.substring(0, needle.length) === needle;
+        };
+    }
     function looksLikeAnUrl(testUrl) {
-        return isString(testUrl) && /^(https?:\/\/|\/\/)[^ \t\r\n\v\f]+\.[^ \t\r\n\v\f]+$/.test(testUrl);
+        var startsWith = stringStartsWith(testUrl);
+        return isString(testUrl) && (startsWith("http://") || startsWith("https://"));
     }
     function getAnyNestedScriptTagsOfElement(elem) {
         if (isScriptTag(elem)) return [ elem ];
