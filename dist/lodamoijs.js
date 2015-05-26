@@ -1,7 +1,7 @@
 /*! { "name": "lodamoijs", "version": "0.3.3", "homepage": "https://github.com/theborakompanioni/lodamoijs","copyright": "(c) 2015 theborakompanioni" } */
 !function(window, factory) {
     "use strict";
-    window.Lodamoi = factory(window.document);
+    window.L = window.Lodamoi = factory(window.document);
 }(this, function(document) {
     "use strict";
     function evalScript(stringJavascriptSource, onLoad) {

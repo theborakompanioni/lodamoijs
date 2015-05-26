@@ -1,7 +1,7 @@
 /*jshint bitwise: false*/
 (function (window, factory) {
   'use strict';
-  window.Lodamoi = factory(window.document);
+  window.L = window.Lodamoi = factory(window.document);
 })(this, function (document, undefined) {
   'use strict';
   var ELEMENT_NODE_TYPE = 1;

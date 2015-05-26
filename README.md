@@ -12,8 +12,8 @@ Usage
 
 ### URLs
 ```javascript
-Lodamoi(['https://rawgit.com/vissense/vissense/0.8.0/dist/vissense.js']).load(function() {
-  Lodamoi(['https://rawgit.com/vissense/vissense-percentage-time-test/0.5.0/dist/vissense-percentage-time-test.js']).load(function() {
+L(['https://rawgit.com/vissense/vissense/0.8.0/dist/vissense.js']).load(function() {
+  L(['https://rawgit.com/vissense/vissense-percentage-time-test/0.5.0/dist/vissense-percentage-time-test.js']).load(function() {
     // do awesome stuff
   });
 });
@@ -21,7 +21,7 @@ Lodamoi(['https://rawgit.com/vissense/vissense/0.8.0/dist/vissense.js']).load(fu
 
 ### Code
 ```javascript
-Lodamoi([
+L([
   'var a = 1;',
   'var b = a + 1;'
   ]).load(function() {
@@ -32,7 +32,7 @@ Lodamoi([
 ### Elements
 ```javascript
 http.get('page.html', function(htmlTags) {
-  Lodamoi([
+  L([
       htmlTags
     ]).load(function() {
     // do awesome stuff
@@ -49,14 +49,14 @@ The current implementation matches urls by protocol prefix.
 Trying the following won't work as expected:
 
 ```javascript
-Lodamoi(['/from/same/origin/script.js']).load(function() {
+L(['/from/same/origin/script.js']).load(function() {
   // ...
 });
 ```
 
 There is alternative to treat any given parameter as url:
 ```javascript
-Lodamoi.url('/from/same/origin/script.js').load(function() {
+L.url('/from/same/origin/script.js').load(function() {
   // ...
 });
 ```
@@ -74,7 +74,7 @@ The following does not work as expected:
 ```
 ```javascript
 var myElement = document.getElementById('myElement');
-Lodamoi([
+L([
     myElement
 ]).load(function() {
   // ...

@@ -1,4 +1,4 @@
-/*global Lodamoi,jasmine,describe,it,expect,beforeEach,afterEach*/
+/*global L,jasmine,describe,it,expect,beforeEach,afterEach*/
 describe('Lodamoijs', function () {
   'use strict';
 
@@ -26,17 +26,17 @@ describe('Lodamoijs', function () {
   });
 
   it('should create valid Lodamoi instances', function () {
-    var lodamoi = Lodamoi;
-    var obj1 = new Lodamoi(['']);
+    var lodamoi = L;
+    var obj1 = new L(['']);
     var obj2 = lodamoi(['']);
 
-    expect(Lodamoi.prototype.isPrototypeOf(obj1)).toBe(true);
-    expect(Lodamoi.prototype.isPrototypeOf(obj2)).toBe(true);
+    expect(L.prototype.isPrototypeOf(obj1)).toBe(true);
+    expect(L.prototype.isPrototypeOf(obj2)).toBe(true);
   });
 
   it('should throw an error if instantiated without a parameter', function () {
     try {
-      var obj = new Lodamoi();
+      var obj = new L();
       obj.load();
       expect(obj).toBe(1);
     } catch(e) {
@@ -54,8 +54,8 @@ describe('Lodamoijs', function () {
 
       it('should load a Lodable instance', function (done) {
         var varName1 = newRandomVariableName('a');
-        var lodamoi = new Lodamoi([
-          Lodamoi.code(
+        var lodamoi = new L([
+          L.code(
             'var ' + varName1 + ' = 11; ' + varName1 + ' = ' + varName1 + ' + 1;'
           )
         ]);
@@ -72,7 +72,7 @@ describe('Lodamoijs', function () {
     describe('code', function () {
       it('should evaluate a script', function (done) {
         var varName1 = newRandomVariableName('a');
-        var lodamoi = new Lodamoi([
+        var lodamoi = new L([
           'var ' + varName1 + ' = 42; ' + varName1 + ' = ' + varName1 + ' + 1;'
         ]);
 
@@ -92,7 +92,7 @@ describe('Lodamoijs', function () {
       });
 
       it('should load a remote script', function (done) {
-        var lodamoi = new Lodamoi([
+        var lodamoi = new L([
           'https://code.jquery.com/jquery-2.1.4.min.js'
         ]);
 
@@ -110,7 +110,7 @@ describe('Lodamoijs', function () {
 
         tmpElement.src = 'https://rawgit.com/theborakompanioni/againjs/0.1.0/dist/againjs.js';
 
-        var lodamoi = new Lodamoi([
+        var lodamoi = new L([
           tmpElement
         ]);
 
@@ -129,7 +129,7 @@ describe('Lodamoijs', function () {
         var varName1 = newRandomVariableName('a');
         tmpElement.innerHTML = 'var ' + varName1 + ' = 13; ' + varName1 + ' = ' + varName1 + ' + 1;';
 
-        var lodamoi = new Lodamoi([
+        var lodamoi = new L([
           tmpElement
         ]);
 
@@ -163,7 +163,7 @@ describe('Lodamoijs', function () {
         var tmpElement = document.createElement('div');
 
         tmpElement.innerHTML = nestedHtml;
-        var lodamoi = new Lodamoi([
+        var lodamoi = new L([
           tmpElement
         ]);
 
@@ -197,7 +197,7 @@ describe('Lodamoijs', function () {
       var tmpElement = document.createElement('div');
 
       tmpElement.innerHTML = nestedHtml;
-      var lodamoi = new Lodamoi([
+      var lodamoi = new L([
         tmpElement
       ]);
 
